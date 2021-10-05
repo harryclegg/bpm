@@ -10,7 +10,7 @@ import Foundation
 class BPMTapper {
     
     let placeholderString = "bpm"
-    let waitingForSecondString = "..."
+    let waitingForSecondString = "bpm"
     
     // Store time since last click to find intervals.
     var lastPress : NSDate = NSDate()

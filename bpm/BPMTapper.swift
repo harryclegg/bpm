@@ -10,7 +10,7 @@ import Foundation
 class BPMTapper {
     
     let placeholderString = "bpm"
-    let waitingForSecondString = "bpm"
+    let waitingForSecondString = "..."
     
     // Store time since last click to find intervals.
     var lastPress : NSDate = NSDate()
@@ -24,22 +24,30 @@ class BPMTapper {
     var averageInterval : Double = 0
     
     var averageIntervalAsString : String {
-        return String(Int(60 / averageInterval))
+        return String(Int(60 / self.averageInterval))
     }
     
     func recordInterval(withNewInterval newInterval: Double) -> String {
-        // How long do all the existing presses equate to?
-        let totalTime = ((averageInterval * Double(nClicks)) + newInterval)
-        
         // The user has clicked, increment counter.
-        nClicks += 1
+        self.nClicks += 1
         
-        // Now we can find the average of all click intervals.
-        averageInterval = totalTime / Double(nClicks);
-        
-        // If the user has clicked only once, return the waiting for second click string.
-        // Otherwise, return the average BPM value as a rounded string.
-        return nClicks > 1 ? averageIntervalAsString : waitingForSecondString
+        if self.nClicks == 1 {
+            // Clear the average interval.
+            self.averageInterval = 0
+            
+            // Do nothing until we get a second press. Display placeholder.
+            return self.waitingForSecondString
+            
+        } else {
+            // How long do all the existing presses equate to?
+            let totalTime = ((self.averageInterval * Double(self.nClicks - 2)) + newInterval)
+            
+            // Now we can find the average of all click intervals.
+            self.averageInterval = totalTime / Double(self.nClicks - 1);
+            
+            // Display average bpm.
+            return self.averageIntervalAsString
+        }
     }
     
     func click(withResetCallback callback: @escaping (String) -> Void, andWasRightClick rightClick : Bool) -> String {
@@ -47,25 +55,26 @@ class BPMTapper {
         if rightClick {
             // Reset internal variables if right click.
             self.clear()
+            self.lastPress = NSDate()
         }
         
         // Clear any existing timer.
-        resetTimer.invalidate()
+        self.resetTimer.invalidate()
         
         // Create a timer that will reset the bpm bar item message to placeholder after time is up.
-        resetTimer = Timer.scheduledTimer(withTimeInterval: resetInterval,  repeats: false) { timer in
+        self.resetTimer = Timer.scheduledTimer(withTimeInterval: self.resetInterval,  repeats: false) { timer in
             callback(self.reset())
         }
         
         // Determine how long since last press.
-        let thisInterval = NSDate().timeIntervalSince(lastPress as Date)
+        let thisInterval = NSDate().timeIntervalSince(self.lastPress as Date)
         
-        // Store current time.
-        lastPress = NSDate()
+        // Store current time for next call.
+        self.lastPress = NSDate()
         
         // Store the new value by melding it in to the existing average.
         // This function returns the string to display to the user.
-        return recordInterval(withNewInterval: thisInterval)
+        return self.recordInterval(withNewInterval: thisInterval)
     }
     
     func clear() {
@@ -78,14 +87,10 @@ class BPMTapper {
         // Clear average interval tracking variables.
         self.clear()
         
-        // Store current time. This means if the user right clicks to reset the counter because
-        // it is way off, this click will count towards timing.
-        lastPress = NSDate()
-        
         // We don't want the timer to fire now in any case.
-        resetTimer.invalidate()
+        self.resetTimer.invalidate()
         
-        return placeholderString
+        return self.placeholderString
     }
     
 }

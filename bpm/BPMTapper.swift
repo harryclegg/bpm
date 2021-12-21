@@ -24,7 +24,7 @@ class BPMTapper {
     var averageInterval : Double = 0
     
     var averageIntervalAsString : String {
-        return String(Int(60 / averageInterval))
+        return String(Int(60 / self.averageInterval))
     }
     
     func recordInterval(withNewInterval newInterval: Double) -> String {
@@ -59,22 +59,22 @@ class BPMTapper {
         }
         
         // Clear any existing timer.
-        resetTimer.invalidate()
+        self.resetTimer.invalidate()
         
         // Create a timer that will reset the bpm bar item message to placeholder after time is up.
-        resetTimer = Timer.scheduledTimer(withTimeInterval: resetInterval,  repeats: false) { timer in
+        self.resetTimer = Timer.scheduledTimer(withTimeInterval: self.resetInterval,  repeats: false) { timer in
             callback(self.reset())
         }
         
         // Determine how long since last press.
-        let thisInterval = NSDate().timeIntervalSince(lastPress as Date)
+        let thisInterval = NSDate().timeIntervalSince(self.lastPress as Date)
         
-        // Store current time.
-        lastPress = NSDate()
+        // Store current time for next call.
+        self.lastPress = NSDate()
         
         // Store the new value by melding it in to the existing average.
         // This function returns the string to display to the user.
-        return recordInterval(withNewInterval: thisInterval)
+        return self.recordInterval(withNewInterval: thisInterval)
     }
     
     func clear() {
@@ -88,9 +88,9 @@ class BPMTapper {
         self.clear()
         
         // We don't want the timer to fire now in any case.
-        resetTimer.invalidate()
+        self.resetTimer.invalidate()
         
-        return placeholderString
+        return self.placeholderString
     }
     
 }

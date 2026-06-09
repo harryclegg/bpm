@@ -20,7 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create status bar item.
         let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(
-            withLength: 27)
+            withLength: 30)
         
         // Give button initial formatting.
         if let button = statusBarItem.button {
